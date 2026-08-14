@@ -1,0 +1,2 @@
+pandas>=2.2.0
+yahooquery>=2.3.7

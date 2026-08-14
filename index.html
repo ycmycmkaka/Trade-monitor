@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trade Exit Monitor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">每日收市後更新</div>
+        <h1>Trade Exit Monitor</h1>
+        <p class="subtitle">只監察你真正買入嘅交易｜HOLD · WATCH · REDUCE · EXIT</p>
+      </div>
+      <div id="summaryCard" class="summary-card">載入中…</div>
+    </header>
+
+    <section class="notice">
+      <strong>用途：</strong> 呢個頁面唔管理你證券戶口持倉，只根據你輸入嘅買入資料同每日 OHLCV，
+      提供策略式離場參考。新增／刪除交易後，請下載 <code>trades.json</code> 並覆蓋 GitHub repo 內同名檔案，
+      下一次 Action 先會按新清單更新。
+    </section>
+
+    <section class="card">
+      <div class="section-title-row">
+        <div>
+          <h2>新增監察交易</h2>
+          <p>股數唔需要輸入；呢個工具只監察離場條件。</p>
+        </div>
+      </div>
+
+      <form id="tradeForm" class="trade-form">
+        <label>
+          股票代號
+          <input id="symbolInput" required placeholder="例如 CRWD" autocomplete="off" />
+        </label>
+        <label>
+          買入日期
+          <input id="entryDateInput" required type="date" />
+        </label>
+        <label>
+          買入價
+          <input id="entryPriceInput" required type="number" min="0.01" step="0.01" placeholder="221.90" />
+        </label>
+        <label>
+          Entry Setup
+          <select id="setupInput">
+            <option value="breakout">Breakout</option>
+            <option value="pullback">Pullback</option>
+            <option value="vcp">VCP</option>
+            <option value="other">Other / 手動</option>
+          </select>
+        </label>
+        <label>
+          當時 Pivot（可留空）
+          <input id="pivotInput" type="number" min="0.01" step="0.01" placeholder="例如 218.50" />
+        </label>
+        <button type="submit" class="primary">加入 Trade Monitor</button>
+      </form>
+
+      <div class="manage-row">
+        <span id="draftStatus">目前使用 GitHub 上嘅 trades.json。</span>
+        <button id="downloadTradesBtn" class="secondary">下載更新後 trades.json</button>
+        <button id="resetDraftBtn" class="ghost">還原 GitHub 版本</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title-row">
+        <div>
+          <h2>我的監察交易</h2>
+          <p>刪除只會先改你瀏覽器內嘅草稿；下載並覆蓋 GitHub <code>trades.json</code> 後先正式同步每日更新。</p>
+        </div>
+        <span id="tradeCount"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>股票</th>
+              <th>Entry</th>
+              <th>現價</th>
+              <th>P/L</th>
+              <th>最高價</th>
+              <th>Initial Stop</th>
+              <th>Trailing Stop</th>
+              <th>20–25% Zone</th>
+              <th>10MA</th>
+              <th>20MA</th>
+              <th>50MA</th>
+              <th>狀態</th>
+              <th>原因</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="monitorBody"></tbody>
+        </table>
+      </div>
+      <div id="emptyState" class="empty hidden">暫時未有監察交易。</div>
+    </section>
+
+    <section class="card compact-card">
+      <h2>離場框架</h2>
+      <div class="legend-grid">
+        <div><span class="status hold">HOLD</span><p>趨勢仍健康，未觸發主要離場訊號。</p></div>
+        <div><span class="status watch">WATCH</span><p>例如跌穿 10MA、動能轉弱，要提高警覺。</p></div>
+        <div><span class="status reduce">REDUCE</span><p>例如進入一般 20–25% 獲利區、或 20MA 出現放量弱勢。</p></div>
+        <div><span class="status exit">EXIT</span><p>例如觸及初始止蝕、明確跌穿結構／50MA 放量。</p></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
