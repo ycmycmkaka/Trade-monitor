@@ -1,0 +1,1 @@
+# v2 daily updates are handled by Supabase Edge Function; no Python dependencies required.

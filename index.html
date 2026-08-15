@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trade Exit Monitor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">Supabase 即時同步 · 每日收市後自動更新</div>
+        <h1>Trade Exit Monitor</h1>
+        <p class="subtitle">只監察你真正買入嘅交易｜HOLD · WATCH · REDUCE · EXIT</p>
+      </div>
+      <div id="summaryCard" class="summary-card">
+        <div>狀態</div>
+        <div class="summary-count">—</div>
+        <div class="summary-updated">等待登入</div>
+      </div>
+    </header>
+
+    <section id="loginCard" class="card login-card">
+      <div class="section-title-row">
+        <div>
+          <h2>登入 Trade Monitor</h2>
+          <p>使用你喺 Supabase Authentication 建立嘅帳戶。</p>
+        </div>
+      </div>
+      <form id="loginForm" class="login-form">
+        <label>
+          Email
+          <input id="emailInput" type="email" required autocomplete="username" />
+        </label>
+        <label>
+          Password
+          <input id="passwordInput" type="password" required autocomplete="current-password" />
+        </label>
+        <button id="loginBtn" type="submit" class="primary">登入</button>
+      </form>
+      <div id="loginMessage" class="form-message"></div>
+    </section>
+
+    <div id="appArea" class="hidden">
+      <section class="notice">
+        <div>
+          <strong>用途：</strong> 呢個頁面唔管理證券戶口股數；只記錄你實際採用嘅 Entry，然後按每日市場數據重新計算離場策略。
+          新增 Trade 後會立即分析，唔再需要下載／上載 <code>trades.json</code>。
+        </div>
+        <button id="logoutBtn" class="ghost">登出</button>
+      </section>
+
+      <section class="card">
+        <div class="section-title-row">
+          <div>
+            <h2>新增監察交易</h2>
+            <p>Save 後會直接寫入 Supabase，然後立即分析該股票。</p>
+          </div>
+        </div>
+
+        <form id="tradeForm" class="trade-form">
+          <label>
+            股票代號
+            <input id="symbolInput" required placeholder="例如 CRWD" autocomplete="off" />
+          </label>
+          <label>
+            買入日期
+            <input id="entryDateInput" required type="date" />
+          </label>
+          <label>
+            買入價
+            <input id="entryPriceInput" required type="number" min="0.01" step="0.01" placeholder="221.90" />
+          </label>
+          <label>
+            Entry Setup
+            <select id="setupInput">
+              <option value="breakout">Breakout</option>
+              <option value="pullback">Pullback</option>
+              <option value="vcp">VCP</option>
+              <option value="other">Other / 手動</option>
+            </select>
+          </label>
+          <label>
+            當時 Pivot（可留空）
+            <input id="pivotInput" type="number" min="0.01" step="0.01" placeholder="例如 218.50" />
+          </label>
+          <button id="addTradeBtn" type="submit" class="primary">加入並立即分析</button>
+        </form>
+        <div id="tradeMessage" class="form-message"></div>
+      </section>
+
+      <section class="card">
+        <div class="section-title-row">
+          <div>
+            <h2>我的監察交易</h2>
+            <p>資料直接來自 Supabase；刪除後即時停止監察。</p>
+          </div>
+          <div class="actions-inline">
+            <span id="tradeCount"></span>
+            <button id="refreshAllBtn" class="secondary">重新讀取</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>股票</th>
+                <th>Entry</th>
+                <th>現價</th>
+                <th>P/L</th>
+                <th>最高價</th>
+                <th>Initial Stop</th>
+                <th>Trailing Stop</th>
+                <th>20–25% Zone</th>
+                <th>10MA</th>
+                <th>20MA</th>
+                <th>50MA</th>
+                <th>狀態</th>
+                <th>原因</th>
+                <th>最後分析</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="monitorBody"></tbody>
+          </table>
+        </div>
+        <div id="emptyState" class="empty hidden">暫時未有監察交易。</div>
+      </section>
+
+      <section class="card compact-card">
+        <h2>離場框架</h2>
+        <div class="legend-grid">
+          <div><span class="status hold">HOLD</span><p>主要趨勢仍健康，未觸發核心離場條件。</p></div>
+          <div><span class="status watch">WATCH</span><p>例如跌穿 10MA、出現較大成交量下跌，需要提高警覺。</p></div>
+          <div><span class="status reduce">REDUCE</span><p>例如進入一般 20–25% 獲利區，或放量跌穿 20MA。</p></div>
+          <div><span class="status exit">EXIT</span><p>例如觸發 Initial / Trailing Stop、結構破壞或放量跌穿 50MA。</p></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
