@@ -6,41 +6,18 @@ on:
   schedule:
     - cron: "30 22 * * 1-5"
 
-permissions:
-  contents: write
-
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Update all trades through Supabase
+        env:
+          CRON_SECRET: ${{ secrets.TRADE_MONITOR_CRON_SECRET }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Update trade monitor
-        run: |
-          python update_trades.py
-
-      - name: Commit updated monitor
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add trade_monitor.json
-
-          if git diff --cached --quiet; then
-            echo "No changes."
-          else
-            git commit -m "Update trade exit monitor"
-            git push
-          fi
+          curl --fail-with-body --retry 2 --retry-delay 5 \
+            -X POST "https://ykxsvgtwbfxmjwrmqhmh.supabase.co/functions/v1/analyze-trade" \
+            -H "Content-Type: application/json" \
+            -H "x-cron-secret: $CRON_SECRET" \
+            -d '{"mode":"all"}'
